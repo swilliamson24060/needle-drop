@@ -16,7 +16,7 @@ export class BootScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    loadChartRows("/data/billboard.csv")
+    loadChartRows(`${import.meta.env.BASE_URL}data/billboard.csv`)
       .then((rows) => {
         const hits = buildHits(rows);
         if (hits.length < 3) {
