@@ -2,8 +2,10 @@ import type { ChartRow, Hit, Question } from "../types";
 
 /** One-time rule text shown in the round-1 popup. */
 export const SESSION_INSTRUCTIONS =
-  "Tap the correct Song Title for the artist and year shown before the blocks bury you. " +
-  "3 correct erases a line, a wrong answer adds a block to the bottom.";
+  "The screens will display an artist and year that the artist was made the Billboard Top 100. " +
+  "Tap the correct Song Title by that artist that the song made the Billboard Top 100. " +
+  "The blocks stack for each incorrect answer and the game ends when a block touches the stack " +
+  "or when the stack reaches 8 high. Every 3 correct answers erases a row from the stack.";
 
 /** Groups raw chart rows into one Hit per (performer, year, title), collecting every month it charted. */
 export function buildHits(rows: ChartRow[]): Hit[] {

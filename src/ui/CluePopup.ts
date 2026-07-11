@@ -10,22 +10,22 @@ export class CluePopup {
     const overlay = scene.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.75);
     overlay.setOrigin(0);
 
-    const panel = scene.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH - 40, 220, 0x1b1b2a, 1);
+    const panel = scene.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH - 20, 440, 0x1b1b2a, 1);
     panel.setStrokeStyle(2, 0xffffff, 0.9);
 
-    this.clueText = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 80, "", {
+    this.clueText = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 190, "", {
       fontSize: "15px",
       color: "#ffffff",
       align: "center",
       lineSpacing: 6,
-      wordWrap: { width: GAME_WIDTH - 80 },
+      wordWrap: { width: GAME_WIDTH - 60 },
     }).setOrigin(0.5, 0);
 
-    const button = scene.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 60, 120, 44, 0x2f6fed, 1);
+    const button = scene.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 180, 120, 44, 0x2f6fed, 1);
     button.setStrokeStyle(2, 0xffffff, 0.9);
     button.setInteractive({ useHandCursor: true });
 
-    const buttonLabel = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 60, "Okay", {
+    const buttonLabel = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 180, "Okay", {
       fontSize: "18px",
       color: "#ffffff",
       fontStyle: "bold",
