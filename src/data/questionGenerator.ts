@@ -6,7 +6,7 @@ export const SESSION_INSTRUCTIONS =
   "3 correct erases a line, a wrong answer adds a block to the bottom.";
 
 const MAX_YEAR_OFFSET = 3;
-const MAX_FUTURE_YEARS_FROM_TODAY = 2;
+const MAX_FUTURE_YEARS_FROM_TODAY = 0;
 
 /** Groups raw chart rows into one Hit per (performer, year, title), collecting every month it charted. */
 export function buildHits(rows: ChartRow[]): Hit[] {
@@ -52,9 +52,8 @@ function pickWrongMonth(hit: Hit, allHits: Hit[]): MonthName {
 }
 
 /**
- * A year within 3 years of `correctYear` (never equal to it), and never more than 2 years
- * past the current real-world year — so a wrong answer never suggests a future release date
- * further out than that.
+ * A year within 3 years of `correctYear` (never equal to it), and never later than the
+ * current real-world year — so a wrong answer never suggests a future release date.
  */
 function pickWrongYear(correctYear: number): number {
   const maxAllowedYear = new Date().getFullYear() + MAX_FUTURE_YEARS_FROM_TODAY;
