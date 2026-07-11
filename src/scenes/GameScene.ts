@@ -127,7 +127,7 @@ export class GameScene extends Phaser.Scene {
 
     this.currentAnswers = answers.map(
       (a, i) => new FallingAnswer(
-        this, ANSWER_X_POSITIONS[i], FALL_START_Y, a.text, question.subcategory, a.isCorrect,
+        this, ANSWER_X_POSITIONS[i], FALL_START_Y, a.text, a.isCorrect,
         (tapped) => this.handleTap(tapped)
       )
     );

@@ -3,31 +3,21 @@ import { BLOCK_HEIGHT, BLOCK_WIDTH, FALL_SPEED_PX_PER_SEC } from "./constants";
 
 export type AnswerTapHandler = (answer: FallingAnswer) => void;
 
-const MONTH_MAX_FONT_SIZE = 24;
-const MONTH_MIN_FONT_SIZE = 12;
-const YEAR_MAX_FONT_SIZE = 19;
-const YEAR_MIN_FONT_SIZE = 13;
+const MAX_FONT_SIZE = 24;
+const MIN_FONT_SIZE = 12;
 const TEXT_PADDING = 20; // horizontal room reserved inside the block on top of the text width
-const LINE_GAP = 4;
 
 /** Creates a centered label that shrinks its font size until it fits within `maxWidth`. */
-function createFittedLabel(
-  scene: Phaser.Scene,
-  text: string,
-  maxWidth: number,
-  maxFontSize: number,
-  minFontSize: number,
-  color: string
-): Phaser.GameObjects.Text {
+function createFittedLabel(scene: Phaser.Scene, text: string, maxWidth: number): Phaser.GameObjects.Text {
   const label = scene.add.text(0, 0, text, {
-    fontSize: `${maxFontSize}px`,
-    color,
+    fontSize: `${MAX_FONT_SIZE}px`,
+    color: "#ffffff",
     align: "center",
   });
-  label.setOrigin(0.5, 0);
+  label.setOrigin(0.5);
 
-  let fontSize = maxFontSize;
-  while (label.width > maxWidth && fontSize > minFontSize) {
+  let fontSize = MAX_FONT_SIZE;
+  while (label.width > maxWidth && fontSize > MIN_FONT_SIZE) {
     fontSize -= 1;
     label.setFontSize(fontSize);
   }
@@ -35,7 +25,7 @@ function createFittedLabel(
   return label;
 }
 
-/** A single falling answer block: a tappable rectangle + month/year label that moves down at a constant speed. */
+/** A single falling answer block: a tappable rectangle + label that moves down at a constant speed. */
 export class FallingAnswer {
   readonly isCorrect: boolean;
   readonly text: string;
@@ -48,7 +38,6 @@ export class FallingAnswer {
     x: number,
     startY: number,
     text: string,
-    year: string,
     isCorrect: boolean,
     onTap: AnswerTapHandler
   ) {
@@ -58,19 +47,9 @@ export class FallingAnswer {
     const bg = scene.add.rectangle(0, 0, BLOCK_WIDTH, BLOCK_HEIGHT, 0x2f6fed, 1);
     bg.setStrokeStyle(2, 0xffffff, 0.8);
 
-    const maxTextWidth = BLOCK_WIDTH - TEXT_PADDING;
-    const monthLabel = createFittedLabel(
-      scene, text, maxTextWidth, MONTH_MAX_FONT_SIZE, MONTH_MIN_FONT_SIZE, "#ffffff"
-    );
-    const yearLabel = createFittedLabel(
-      scene, year, maxTextWidth, YEAR_MAX_FONT_SIZE, YEAR_MIN_FONT_SIZE, "#d7e6ff"
-    );
+    const label = createFittedLabel(scene, text, BLOCK_WIDTH - TEXT_PADDING);
 
-    const totalHeight = monthLabel.height + LINE_GAP + yearLabel.height;
-    monthLabel.y = -totalHeight / 2;
-    yearLabel.y = monthLabel.y + monthLabel.height + LINE_GAP;
-
-    this.container = scene.add.container(x, startY, [bg, monthLabel, yearLabel]);
+    this.container = scene.add.container(x, startY, [bg, label]);
     this.container.setSize(BLOCK_WIDTH, BLOCK_HEIGHT);
     this.container.setInteractive({ useHandCursor: true });
     this.container.on("pointerdown", () => onTap(this));
