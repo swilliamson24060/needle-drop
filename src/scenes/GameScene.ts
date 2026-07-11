@@ -30,7 +30,6 @@ export class GameScene extends Phaser.Scene {
   private missText!: Phaser.GameObjects.Text;
   private titleLabel!: Phaser.GameObjects.Text;
   private artistLabel!: Phaser.GameObjects.Text;
-  private yearLabel!: Phaser.GameObjects.Text;
   private feedbackFlash!: Phaser.GameObjects.Rectangle;
 
   constructor() {
@@ -62,9 +61,6 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5, 0);
     this.artistLabel = this.add
       .text(GAME_WIDTH / 2, 78, "", { fontSize: "19px", color: "#ffffff", align: "center" })
-      .setOrigin(0.5, 0);
-    this.yearLabel = this.add
-      .text(GAME_WIDTH / 2, 102, "", { fontSize: "19px", color: "#cccccc", align: "center" })
       .setOrigin(0.5, 0);
 
     this.feedbackFlash = this.add.rectangle(0, 0, GAME_WIDTH, this.scale.height, 0xffffff, 0);
@@ -102,11 +98,9 @@ export class GameScene extends Phaser.Scene {
 
     this.titleLabel.setText(question.clue);
     this.artistLabel.setText(question.category);
-    this.yearLabel.setText(question.subcategory);
 
     // Reflow below the title in case it wrapped to a second line.
     this.artistLabel.y = this.titleLabel.y + this.titleLabel.height + 6;
-    this.yearLabel.y = this.artistLabel.y + this.artistLabel.height + 4;
 
     if (!this.clueShown) {
       this.clueShown = true;
