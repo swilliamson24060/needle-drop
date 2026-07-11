@@ -21,10 +21,15 @@ export interface Hit {
   months: Set<MonthName>;
 }
 
+/** One falling block's answer: a month+year pair, and whether it's the actual charted month/year. */
+export interface AnswerOption {
+  month: MonthName;
+  year: number;
+  isCorrect: boolean;
+}
+
 export interface Question {
   category: string; // performer
-  subcategory: string; // year
   clue: string; // song title
-  correctAnswer: string; // month
-  wrongAnswers: [string, string]; // months
+  answers: [AnswerOption, AnswerOption, AnswerOption];
 }

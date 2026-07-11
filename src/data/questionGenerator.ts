@@ -1,9 +1,11 @@
-import { MONTH_NAMES, type ChartRow, type Hit, type MonthName, type Question } from "../types";
+import { MONTH_NAMES, type AnswerOption, type ChartRow, type Hit, type MonthName, type Question } from "../types";
 
 /** One-time rule text shown in the round-1 popup. */
 export const SESSION_INSTRUCTIONS =
-  "Tap the Month of the Top 100 Billboard hit before the blocks bury you. " +
+  "Tap the Month and Year of the Top 100 Billboard hit before the blocks bury you. " +
   "3 correct erases a line, a wrong answer adds a block to the bottom.";
+
+const MAX_YEAR_OFFSET = 3;
 
 /** Groups raw chart rows into one Hit per (performer, year, title), collecting every month it charted. */
 export function buildHits(rows: ChartRow[]): Hit[] {
@@ -40,11 +42,45 @@ function sampleDistinct<T>(pool: readonly T[], count: number, exclude: Set<T>): 
   return candidates.slice(0, count);
 }
 
+/** A month that this hit did NOT chart in, so it's never accidentally also a true answer. */
+function pickWrongMonth(hit: Hit, allHits: Hit[]): MonthName {
+  const dataPool = allHits.flatMap((h) => [...h.months]);
+  const candidates = sampleDistinct(dataPool, 1, hit.months as Set<MonthName>);
+  if (candidates.length > 0) return candidates[0];
+  return sampleDistinct(MONTH_NAMES, 1, hit.months as Set<MonthName>)[0];
+}
+
+/** A year within 3 years of `correctYear`, but never equal to it. */
+function pickWrongYear(correctYear: number): number {
+  let offset = 0;
+  while (offset === 0) {
+    offset = randomInt(2 * MAX_YEAR_OFFSET + 1) - MAX_YEAR_OFFSET;
+  }
+  return correctYear + offset;
+}
+
+function answersEqual(a: AnswerOption, b: AnswerOption): boolean {
+  return a.month === b.month && a.year === b.year;
+}
+
+/** Builds one wrong answer: wrong month, wrong year, or both — chosen at random. */
+function buildWrongAnswer(hit: Hit, allHits: Hit[], correctMonth: MonthName, correctYear: number): AnswerOption {
+  const comboType = pickRandom(["wrongMonth", "wrongYear", "bothWrong"] as const);
+
+  if (comboType === "wrongMonth") {
+    return { month: pickWrongMonth(hit, allHits), year: correctYear, isCorrect: false };
+  }
+  if (comboType === "wrongYear") {
+    return { month: correctMonth, year: pickWrongYear(correctYear), isCorrect: false };
+  }
+  return { month: pickWrongMonth(hit, allHits), year: pickWrongYear(correctYear), isCorrect: false };
+}
+
 /**
- * Picks a random hit and builds a month question for it: the clue is the hit's song title,
- * the correct answer is one of the months it actually charted, and the 2 wrong answers are
- * months it did NOT chart in (so a wrong answer never doubles as a technically-correct one).
- * Answers may repeat across rounds/hits — only within a single round are they kept distinct.
+ * Picks a random hit and builds a month+year question for it: the clue is the hit's song title,
+ * and the 3 falling answers are one correct (month, year) pair and two wrong pairs. Each wrong
+ * pair has a wrong month, a wrong year (within 3 years of the real one), or both — never a pair
+ * that happens to also be true for this hit.
  */
 export function generateQuestion(allHits: Hit[]): Question {
   if (allHits.length < 3) {
@@ -52,21 +88,20 @@ export function generateQuestion(allHits: Hit[]): Question {
   }
 
   const hit = pickRandom(allHits);
-  const correctAnswer = pickRandom([...hit.months]);
+  const correctMonth = pickRandom([...hit.months]);
+  const correctYear = hit.year;
 
-  const dataPool = allHits.flatMap((h) => [...h.months]);
-  let wrong = sampleDistinct(dataPool, 2, hit.months as Set<MonthName>);
+  const correct: AnswerOption = { month: correctMonth, year: correctYear, isCorrect: true };
+  const wrong1 = buildWrongAnswer(hit, allHits, correctMonth, correctYear);
 
-  // Fallback in case the dataset doesn't have 2 real months outside this hit's own set.
-  if (wrong.length < 2) {
-    wrong = sampleDistinct(MONTH_NAMES, 2, hit.months as Set<MonthName>);
+  let wrong2 = buildWrongAnswer(hit, allHits, correctMonth, correctYear);
+  for (let attempt = 0; attempt < 20 && answersEqual(wrong1, wrong2); attempt++) {
+    wrong2 = buildWrongAnswer(hit, allHits, correctMonth, correctYear);
   }
 
   return {
     category: hit.performer,
-    subcategory: String(hit.year),
     clue: hit.title,
-    correctAnswer,
-    wrongAnswers: [wrong[0], wrong[1]],
+    answers: [correct, wrong1, wrong2],
   };
 }

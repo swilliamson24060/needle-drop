@@ -113,15 +113,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnAnswers(question: ReturnType<typeof generateQuestion>): void {
-    const answers = Phaser.Utils.Array.Shuffle([
-      { text: question.correctAnswer, isCorrect: true },
-      { text: question.wrongAnswers[0], isCorrect: false },
-      { text: question.wrongAnswers[1], isCorrect: false },
-    ]);
+    const answers = Phaser.Utils.Array.Shuffle([...question.answers]);
 
     this.currentAnswers = answers.map(
       (a, i) => new FallingAnswer(
-        this, ANSWER_X_POSITIONS[i], FALL_START_Y, a.text, a.isCorrect,
+        this, ANSWER_X_POSITIONS[i], FALL_START_Y, a.month, a.year, a.isCorrect,
         (tapped) => this.handleTap(tapped)
       )
     );
