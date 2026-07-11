@@ -19,4 +19,7 @@ export const BLOCK_MIN_WIDTH = 130;
 export const BLOCK_MAX_WIDTH = GAME_WIDTH - 40;
 export const BLOCK_MIN_HEIGHT = 56;
 
-export const ANSWER_STAGGER_MS = 450;
+// Vertical gap kept between staggered falling blocks, expressed as a pixel distance
+// (converted to a spawn-delay in ms using the fall speed) so it stays intuitive to tune.
+export const ANSWER_ROW_GAP_PX = 90;
+export const ANSWER_STAGGER_MS = (ANSWER_ROW_GAP_PX / FALL_SPEED_PX_PER_SEC) * 1000;
