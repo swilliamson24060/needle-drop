@@ -6,6 +6,7 @@ export const SESSION_INSTRUCTIONS =
   "3 correct erases a line, a wrong answer adds a block to the bottom.";
 
 const MAX_YEAR_OFFSET = 3;
+const MAX_FUTURE_YEARS_FROM_TODAY = 2;
 
 /** Groups raw chart rows into one Hit per (performer, year, title), collecting every month it charted. */
 export function buildHits(rows: ChartRow[]): Hit[] {
@@ -50,13 +51,23 @@ function pickWrongMonth(hit: Hit, allHits: Hit[]): MonthName {
   return sampleDistinct(MONTH_NAMES, 1, hit.months as Set<MonthName>)[0];
 }
 
-/** A year within 3 years of `correctYear`, but never equal to it. */
+/**
+ * A year within 3 years of `correctYear` (never equal to it), and never more than 2 years
+ * past the current real-world year — so a wrong answer never suggests a future release date
+ * further out than that.
+ */
 function pickWrongYear(correctYear: number): number {
-  let offset = 0;
-  while (offset === 0) {
-    offset = randomInt(2 * MAX_YEAR_OFFSET + 1) - MAX_YEAR_OFFSET;
+  const maxAllowedYear = new Date().getFullYear() + MAX_FUTURE_YEARS_FROM_TODAY;
+
+  const candidates: number[] = [];
+  for (let offset = -MAX_YEAR_OFFSET; offset <= MAX_YEAR_OFFSET; offset++) {
+    if (offset === 0) continue;
+    const year = correctYear + offset;
+    if (year <= maxAllowedYear) candidates.push(year);
   }
-  return correctYear + offset;
+
+  if (candidates.length === 0) return correctYear - 1;
+  return pickRandom(candidates);
 }
 
 function answersEqual(a: AnswerOption, b: AnswerOption): boolean {
