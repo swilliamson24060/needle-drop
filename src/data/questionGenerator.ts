@@ -2,8 +2,8 @@ import type { ChartRow, Hit, Question } from "../types";
 
 /** One-time rule text shown in the round-1 popup. */
 export const SESSION_INSTRUCTIONS =
-  "The screens will display an artist and year that the artist was made the Billboard Top 100. " +
-  "Tap the correct Song Title by that artist that the song made the Billboard Top 100. " +
+  "The screens will display an artist and one year that the artist made the Billboard Top 100. " +
+  "Tap the correct Song Title by that artist. " +
   "The blocks stack for each incorrect answer and the game ends when a block touches the stack " +
   "or when the stack reaches 8 high. Every 3 correct answers erases a row from the stack.";
 
