@@ -1,79 +1,58 @@
 import Phaser from "phaser";
-import { BLOCK_HEIGHT, BLOCK_WIDTH, FALL_SPEED_PX_PER_SEC } from "./constants";
+import { BLOCK_MAX_WIDTH, BLOCK_MIN_HEIGHT, BLOCK_MIN_WIDTH, FALL_SPEED_PX_PER_SEC, GAME_WIDTH } from "./constants";
 
 export type AnswerTapHandler = (answer: FallingAnswer) => void;
 
-const MONTH_MAX_FONT_SIZE = 24;
-const MONTH_MIN_FONT_SIZE = 12;
-const YEAR_MAX_FONT_SIZE = 19;
-const YEAR_MIN_FONT_SIZE = 13;
-const TEXT_PADDING = 20; // horizontal room reserved inside the block on top of the text width
-const LINE_GAP = 4;
+const FONT_SIZE = 18;
+const HORIZONTAL_PADDING = 24;
+const VERTICAL_PADDING = 16;
+const SCREEN_MARGIN = 10;
 
-/** Creates a centered label that shrinks its font size until it fits within `maxWidth`. */
-function createFittedLabel(
-  scene: Phaser.Scene,
-  text: string,
-  maxWidth: number,
-  maxFontSize: number,
-  minFontSize: number,
-  color: string
-): Phaser.GameObjects.Text {
-  const label = scene.add.text(0, 0, text, {
-    fontSize: `${maxFontSize}px`,
-    color,
-    align: "center",
-  });
-  label.setOrigin(0.5, 0);
-
-  let fontSize = maxFontSize;
-  while (label.width > maxWidth && fontSize > minFontSize) {
-    fontSize -= 1;
-    label.setFontSize(fontSize);
-  }
-
-  return label;
-}
-
-/** A single falling answer block: a tappable rectangle + month/year label that moves down at a constant speed. */
+/** A single falling answer block: sizes itself to fit `title`, tappable, falls at a constant speed. */
 export class FallingAnswer {
   readonly isCorrect: boolean;
-  readonly month: string;
-  readonly year: number;
+  readonly title: string;
   readonly container: Phaser.GameObjects.Container;
 
   private landed = false;
 
   constructor(
     scene: Phaser.Scene,
-    x: number,
+    preferredX: number,
     startY: number,
-    month: string,
-    year: number,
+    title: string,
     isCorrect: boolean,
     onTap: AnswerTapHandler
   ) {
-    this.month = month;
-    this.year = year;
+    this.title = title;
     this.isCorrect = isCorrect;
 
-    const bg = scene.add.rectangle(0, 0, BLOCK_WIDTH, BLOCK_HEIGHT, 0x2f6fed, 1);
+    const label = scene.add.text(0, 0, title, {
+      fontSize: `${FONT_SIZE}px`,
+      color: "#ffffff",
+      align: "center",
+    });
+
+    // Widen the block to fit the title on one line, unless it's too long for the screen —
+    // then cap the width and let it wrap to extra lines instead.
+    const singleLineWidth = label.width + HORIZONTAL_PADDING;
+    if (singleLineWidth > BLOCK_MAX_WIDTH) {
+      label.setWordWrapWidth(BLOCK_MAX_WIDTH - HORIZONTAL_PADDING, true);
+    }
+    label.setOrigin(0.5);
+
+    const blockWidth = Math.min(Math.max(singleLineWidth, BLOCK_MIN_WIDTH), BLOCK_MAX_WIDTH);
+    const blockHeight = Math.max(label.height + VERTICAL_PADDING, BLOCK_MIN_HEIGHT);
+
+    const bg = scene.add.rectangle(0, 0, blockWidth, blockHeight, 0x2f6fed, 1);
     bg.setStrokeStyle(2, 0xffffff, 0.8);
 
-    const maxTextWidth = BLOCK_WIDTH - TEXT_PADDING;
-    const monthLabel = createFittedLabel(
-      scene, month, maxTextWidth, MONTH_MAX_FONT_SIZE, MONTH_MIN_FONT_SIZE, "#ffffff"
-    );
-    const yearLabel = createFittedLabel(
-      scene, String(year), maxTextWidth, YEAR_MAX_FONT_SIZE, YEAR_MIN_FONT_SIZE, "#d7e6ff"
-    );
+    // Keep the whole block on-screen even if it ended up wider than its preferred slot.
+    const halfWidth = blockWidth / 2;
+    const x = Phaser.Math.Clamp(preferredX, SCREEN_MARGIN + halfWidth, GAME_WIDTH - SCREEN_MARGIN - halfWidth);
 
-    const totalHeight = monthLabel.height + LINE_GAP + yearLabel.height;
-    monthLabel.y = -totalHeight / 2;
-    yearLabel.y = monthLabel.y + monthLabel.height + LINE_GAP;
-
-    this.container = scene.add.container(x, startY, [bg, monthLabel, yearLabel]);
-    this.container.setSize(BLOCK_WIDTH, BLOCK_HEIGHT);
+    this.container = scene.add.container(x, startY, [bg, label]);
+    this.container.setSize(blockWidth, blockHeight);
     this.container.setInteractive({ useHandCursor: true });
     this.container.on("pointerdown", () => onTap(this));
   }

@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { generateQuestion, SESSION_INSTRUCTIONS } from "../data/questionGenerator";
 import type { Hit } from "../types";
 import {
+  ANSWER_STAGGER_MS,
   CORRECT_STREAK_FOR_ROW_CLEAR,
   FALL_START_Y,
   GAME_WIDTH,
@@ -25,11 +26,12 @@ export class GameScene extends Phaser.Scene {
   private missCount = 0;
   private roundActive = false;
   private currentAnswers: FallingAnswer[] = [];
+  private pendingSpawnTimers: Phaser.Time.TimerEvent[] = [];
 
   private scoreText!: Phaser.GameObjects.Text;
   private missText!: Phaser.GameObjects.Text;
-  private titleLabel!: Phaser.GameObjects.Text;
   private artistLabel!: Phaser.GameObjects.Text;
+  private yearLabel!: Phaser.GameObjects.Text;
   private feedbackFlash!: Phaser.GameObjects.Rectangle;
 
   constructor() {
@@ -44,14 +46,15 @@ export class GameScene extends Phaser.Scene {
     this.missCount = 0;
     this.roundActive = false;
     this.currentAnswers = [];
+    this.pendingSpawnTimers = [];
 
     this.scoreText = this.add.text(16, 16, "Score: 0", { fontSize: "18px", color: "#ffffff" });
     this.missText = this.add.text(GAME_WIDTH - 16, 16, "Misses: 0/8", {
       fontSize: "18px",
       color: "#ffffff",
     }).setOrigin(1, 0);
-    this.titleLabel = this.add
-      .text(GAME_WIDTH / 2, 42, "", {
+    this.artistLabel = this.add
+      .text(GAME_WIDTH / 2, 46, "", {
         fontSize: "22px",
         color: "#ffe066",
         fontStyle: "bold",
@@ -59,8 +62,8 @@ export class GameScene extends Phaser.Scene {
         wordWrap: { width: GAME_WIDTH - 40 },
       })
       .setOrigin(0.5, 0);
-    this.artistLabel = this.add
-      .text(GAME_WIDTH / 2, 78, "", { fontSize: "19px", color: "#ffffff", align: "center" })
+    this.yearLabel = this.add
+      .text(GAME_WIDTH / 2, 82, "", { fontSize: "19px", color: "#cccccc", align: "center" })
       .setOrigin(0.5, 0);
 
     this.feedbackFlash = this.add.rectangle(0, 0, GAME_WIDTH, this.scale.height, 0xffffff, 0);
@@ -96,11 +99,11 @@ export class GameScene extends Phaser.Scene {
   private startNextRound(): void {
     const question = generateQuestion(this.hits);
 
-    this.titleLabel.setText(question.clue);
     this.artistLabel.setText(question.category);
+    this.yearLabel.setText(question.subcategory);
 
-    // Reflow below the title in case it wrapped to a second line.
-    this.artistLabel.y = this.titleLabel.y + this.titleLabel.height + 6;
+    // Reflow below the artist name in case it wrapped to a second line.
+    this.yearLabel.y = this.artistLabel.y + this.artistLabel.height + 6;
 
     if (!this.clueShown) {
       this.clueShown = true;
@@ -112,14 +115,20 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  /** Releases the 3 answers one at a time (staggered) at shuffled, randomized-within-lane positions. */
   private spawnAnswers(question: ReturnType<typeof generateQuestion>): void {
     const answers = Phaser.Utils.Array.Shuffle([...question.answers]);
+    const lanes = Phaser.Utils.Array.Shuffle([...ANSWER_X_POSITIONS]);
 
-    this.currentAnswers = answers.map(
-      (a, i) => new FallingAnswer(
-        this, ANSWER_X_POSITIONS[i], FALL_START_Y, a.month, a.year, a.isCorrect,
-        (tapped) => this.handleTap(tapped)
-      )
+    this.currentAnswers = [];
+    this.pendingSpawnTimers = answers.map((a, i) =>
+      this.time.delayedCall(i * ANSWER_STAGGER_MS, () => {
+        const block = new FallingAnswer(
+          this, lanes[i], FALL_START_Y, a.title, a.isCorrect,
+          (tapped) => this.handleTap(tapped)
+        );
+        this.currentAnswers.push(block);
+      })
     );
     this.roundActive = true;
   }
@@ -132,6 +141,11 @@ export class GameScene extends Phaser.Scene {
   /** Ends the current round. `wasMiss` is true for a wrong tap OR the correct answer landing unanswered. */
   private resolveRound(wasMiss: boolean): void {
     this.roundActive = false;
+
+    for (const timer of this.pendingSpawnTimers) {
+      timer.remove();
+    }
+    this.pendingSpawnTimers = [];
 
     for (const answer of this.currentAnswers) {
       answer.disableInput();
