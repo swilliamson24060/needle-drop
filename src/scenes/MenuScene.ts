@@ -16,7 +16,7 @@ export class MenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, "Name the month or the title\nbefore the blocks bury you.", {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, "Tap the answer before the blocks bury you.", {
         fontSize: "16px",
         color: "#ffffff",
         align: "center",
