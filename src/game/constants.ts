@@ -23,3 +23,8 @@ export const BLOCK_MIN_HEIGHT = 56;
 // (converted to a spawn-delay in ms using the fall speed) so it stays intuitive to tune.
 export const ANSWER_ROW_GAP_PX = 90;
 export const ANSWER_STAGGER_MS = (ANSWER_ROW_GAP_PX / FALL_SPEED_PX_PER_SEC) * 1000;
+
+// Bonus peak-chart-position round: a per-round chance to also show a small extra-points question.
+export const BONUS_CHANCE = 0.3;
+export const BONUS_POINTS = 5;
+export const BONUS_PEAK_OFFSET = 5;

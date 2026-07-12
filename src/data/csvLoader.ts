@@ -14,7 +14,14 @@ interface RawRow {
   month?: string;
   title?: string;
   performer?: string;
+  peak_pos?: string;
   [key: string]: string | undefined;
+}
+
+/** Parses a peak-position value, returning null (rather than dropping the row) if unusable. */
+function parsePeakPosition(raw: string | undefined): number | null {
+  const value = Number.parseInt((raw ?? "").trim(), 10);
+  return Number.isFinite(value) && value > 0 ? value : null;
 }
 
 /** Fetches and parses the chart CSV into rows the question generator can use. */
@@ -39,7 +46,7 @@ export async function loadChartRows(url: string): Promise<ChartRow[]> {
 
     if (!Number.isFinite(year) || !month || !title || !performer) continue;
 
-    rows.push({ year, month, title, performer });
+    rows.push({ year, month, title, performer, peakPosition: parsePeakPosition(raw.peak_pos) });
   }
 
   return rows;

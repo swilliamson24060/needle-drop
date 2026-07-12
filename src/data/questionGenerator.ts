@@ -1,5 +1,5 @@
-import { STACK_ROWS } from "../game/constants";
-import type { ChartRow, Hit, Question } from "../types";
+import { BONUS_PEAK_OFFSET, STACK_ROWS } from "../game/constants";
+import type { ChartRow, Hit, PeakAnswer, Question } from "../types";
 
 /** One-time rule text shown in the round-1 popup. */
 export const SESSION_INSTRUCTIONS =
@@ -16,10 +16,13 @@ export function buildHits(rows: ChartRow[]): Hit[] {
     const key = `${row.performer}::${row.year}::${row.title}`;
     let hit = hitsByKey.get(key);
     if (!hit) {
-      hit = { performer: row.performer, year: row.year, title: row.title, months: new Set() };
+      hit = { performer: row.performer, year: row.year, title: row.title, months: new Set(), peakPosition: null };
       hitsByKey.set(key, hit);
     }
     hit.months.add(row.month);
+    if (row.peakPosition !== null) {
+      hit.peakPosition = hit.peakPosition === null ? row.peakPosition : Math.min(hit.peakPosition, row.peakPosition);
+    }
   }
 
   return [...hitsByKey.values()];
@@ -44,9 +47,38 @@ function sampleDistinct<T>(pool: readonly T[], count: number, exclude: Set<T>): 
 }
 
 /**
+ * Builds the 3 bonus answers for a hit's peak chart position: the real peak, plus one
+ * `peak - 5` and one `peak + 5` — falling back to a larger positive offset if the `-5`
+ * candidate would drop below 1 (chart positions never go below 1).
+ */
+function buildBonusAnswers(correctPeak: number): [PeakAnswer, PeakAnswer, PeakAnswer] {
+  const wrongValues = new Set<number>();
+  const tryAdd = (value: number) => {
+    if (value >= 1 && value !== correctPeak) wrongValues.add(value);
+  };
+
+  tryAdd(correctPeak - BONUS_PEAK_OFFSET);
+  tryAdd(correctPeak + BONUS_PEAK_OFFSET);
+
+  let extraOffset = BONUS_PEAK_OFFSET * 2;
+  while (wrongValues.size < 2) {
+    tryAdd(correctPeak + extraOffset);
+    extraOffset += BONUS_PEAK_OFFSET;
+  }
+
+  const [wrongA, wrongB] = [...wrongValues].slice(0, 2);
+  return [
+    { peakPosition: correctPeak, isCorrect: true },
+    { peakPosition: wrongA, isCorrect: false },
+    { peakPosition: wrongB, isCorrect: false },
+  ];
+}
+
+/**
  * Picks a random hit and builds a title question for it: the performer and year are shown
  * in the ribbon, and the 3 falling answers are the hit's real title plus 2 other real song
- * titles pulled from elsewhere in the dataset.
+ * titles pulled from elsewhere in the dataset. Also builds bonus peak-position answers when
+ * the hit has usable peak-position data.
  */
 export function generateQuestion(allHits: Hit[]): Question {
   if (allHits.length < 3) {
@@ -67,5 +99,6 @@ export function generateQuestion(allHits: Hit[]): Question {
       { title: wrong[0], isCorrect: false },
       { title: wrong[1], isCorrect: false },
     ],
+    bonusAnswers: hit.peakPosition !== null ? buildBonusAnswers(hit.peakPosition) : null,
   };
 }
