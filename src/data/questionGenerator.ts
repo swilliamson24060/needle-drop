@@ -3,15 +3,15 @@ import type { ChartRow, Hit, PeakAnswer, Question } from "../types";
 
 /** One-time rule text shown in the round-1 popup, naming the decade the player picked. */
 export function buildSessionInstructions(decade: number): string {
-  return (
+  return [
     "The screens will display an artist and one year that the artist made the Billboard Top 100. " +
-    "Tap the correct Song Title by that artist. " +
+      "Tap the correct Song Title by that artist.",
     "The blocks stack for each incorrect answer and the game ends when a block touches the stack " +
-    `or when the stack reaches ${STACK_ROWS} high. Every 3 correct answers erases a row from the stack. ` +
+      `or when the stack reaches ${STACK_ROWS} high. Every 3 correct answers erases a row from the stack.`,
     "Answer correctly and a bonus round pops up: pick the hit's real peak chart position from " +
-    `3 choices for ${BONUS_POINTS} extra points. ` +
-    `You picked the ${decade}s, so every artist, year, and answer choice will come from that decade.`
-  );
+      `3 choices for ${BONUS_POINTS} extra points.`,
+    `You picked the ${decade}s, so every artist, year, and answer choice will come from that decade.`,
+  ].join("\n\n");
 }
 
 /** Groups raw chart rows into one Hit per (performer, year, title), collecting every month it charted. */

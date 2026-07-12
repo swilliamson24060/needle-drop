@@ -21,11 +21,11 @@ export class CluePopup {
     }).setOrigin(0.5);
 
     this.clueText = scene.add.text(GAME_WIDTH / 2, 140, "", {
-      fontSize: "16px",
+      fontSize: "20px",
       fontFamily: FONT_FAMILY,
       color: toCssHex(TEXT_DARK),
       align: "center",
-      lineSpacing: 8,
+      lineSpacing: 14,
       wordWrap: { width: GAME_WIDTH - 60 },
     }).setOrigin(0.5, 0);
 
