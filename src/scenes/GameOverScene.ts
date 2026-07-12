@@ -13,7 +13,8 @@ import {
   toCssHex,
 } from "../game/theme";
 import { drawRoundedRectWithShadow } from "../ui/roundedPanel";
-import { getOrPromptPlayerName, submitScore } from "../data/leaderboard";
+import { getSavedPlayerName, savePlayerName, submitScore } from "../data/leaderboard";
+import { NameEntryModal } from "../ui/NameEntryModal";
 
 export class GameOverScene extends Phaser.Scene {
   constructor() {
@@ -44,17 +45,26 @@ export class GameOverScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const submitStatus = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, "Saving score...", {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, "", {
         fontSize: "13px",
         fontFamily: FONT_FAMILY,
         color: toCssHex(TEXT_GRAY),
       })
       .setOrigin(0.5);
 
-    const name = getOrPromptPlayerName();
-    submitScore(name, data.score ?? 0, data.decade)
-      .then(() => submitStatus.setText("Score saved to the leaderboard!"))
-      .catch(() => submitStatus.setText("Couldn't save your score — check your connection."));
+    const saveScore = (name: string) => {
+      submitStatus.setText("Saving score...");
+      submitScore(name, data.score ?? 0, data.decade)
+        .then(() => submitStatus.setText("Score saved to the leaderboard!"))
+        .catch(() => submitStatus.setText("Couldn't save your score — check your connection."));
+    };
+
+    const savedName = getSavedPlayerName();
+    if (savedName) {
+      saveScore(savedName);
+    } else {
+      new NameEntryModal(this).show((entered) => saveScore(savePlayerName(entered)));
+    }
 
     const buttonBg = drawRoundedRectWithShadow(this, 220, 60, CORAL, 30);
     const button = this.add.container(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 70, [buttonBg]);

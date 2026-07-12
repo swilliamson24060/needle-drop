@@ -12,21 +12,17 @@ export interface LeaderboardEntry {
   decade: number;
 }
 
-/** Returns the player's saved name, prompting once and remembering it for next time. */
-export function getOrPromptPlayerName(): string {
-  const saved = window.localStorage.getItem(PLAYER_NAME_KEY);
-  if (saved) return saved;
+/** Returns the player's saved name, or null if they haven't been asked yet. */
+export function getSavedPlayerName(): string | null {
+  return window.localStorage.getItem(PLAYER_NAME_KEY);
+}
 
-  let entered: string | null = null;
-  try {
-    entered = window.prompt("Enter your name for the leaderboard:", "");
-  } catch {
-    // window.prompt isn't available in every environment (e.g. some embedded webviews) — fall back below.
-  }
-  const trimmed = entered?.trim().slice(0, MAX_NAME_LENGTH);
-  const name = trimmed && trimmed.length > 0 ? trimmed : "Anonymous";
-  window.localStorage.setItem(PLAYER_NAME_KEY, name);
-  return name;
+/** Remembers the player's name (trimmed/capped) for future sessions. */
+export function savePlayerName(name: string): string {
+  const trimmed = name.trim().slice(0, MAX_NAME_LENGTH);
+  const saved = trimmed.length > 0 ? trimmed : "Anonymous";
+  window.localStorage.setItem(PLAYER_NAME_KEY, saved);
+  return saved;
 }
 
 /** Records a completed game's score. Fire-and-forget from the caller's perspective. */

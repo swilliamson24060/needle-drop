@@ -22,6 +22,9 @@ function startGame() {
     input: {
       activePointers: 1,
     },
+    dom: {
+      createContainer: true,
+    },
     scene: [BootScene, MenuScene, DecadeSelectScene, GameScene, GameOverScene, LeaderboardScene],
   });
 
