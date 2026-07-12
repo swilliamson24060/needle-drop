@@ -24,7 +24,6 @@ export const BLOCK_MIN_HEIGHT = 56;
 export const ANSWER_ROW_GAP_PX = 90;
 export const ANSWER_STAGGER_MS = (ANSWER_ROW_GAP_PX / FALL_SPEED_PX_PER_SEC) * 1000;
 
-// Bonus peak-chart-position round: a per-round chance to also show a small extra-points question.
-export const BONUS_CHANCE = 0.3;
+// Bonus peak-chart-position round: shown every question, worth a small amount of extra points.
 export const BONUS_POINTS = 5;
 export const BONUS_PEAK_OFFSET = 5;

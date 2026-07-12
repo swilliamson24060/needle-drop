@@ -7,7 +7,7 @@ export const SESSION_INSTRUCTIONS =
   "Tap the correct Song Title by that artist. " +
   "The blocks stack for each incorrect answer and the game ends when a block touches the stack " +
   `or when the stack reaches ${STACK_ROWS} high. Every 3 correct answers erases a row from the stack. ` +
-  "Sometimes 3 gold bonus blocks will also appear showing the hit's peak chart position — " +
+  "Every question also shows 3 gold bonus blocks with the hit's peak chart position — " +
   `tap the correct one for ${BONUS_POINTS} bonus points.`;
 
 /** Groups raw chart rows into one Hit per (performer, year, title), collecting every month it charted. */

@@ -3,7 +3,6 @@ import { generateQuestion, SESSION_INSTRUCTIONS } from "../data/questionGenerato
 import type { Hit } from "../types";
 import {
   ANSWER_STAGGER_MS,
-  BONUS_CHANCE,
   BONUS_POINTS,
   CORRECT_STREAK_FOR_ROW_CLEAR,
   FALL_START_Y,
@@ -175,7 +174,7 @@ export class GameScene extends Phaser.Scene {
     this.ribbonCard.fillStyle(CARD_WHITE, 1);
     this.ribbonCard.fillRoundedRect(CARD_LEFT, CARD_TOP, GAME_WIDTH - CARD_LEFT * 2, cardHeight, CARD_RADIUS);
 
-    if (question.bonusAnswers && Math.random() < BONUS_CHANCE) {
+    if (question.bonusAnswers) {
       this.spawnBonusBlocks(question.bonusAnswers);
     }
 
