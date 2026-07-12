@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { generateQuestion, SESSION_INSTRUCTIONS } from "../data/questionGenerator";
+import { buildSessionInstructions, decadeOf, generateQuestion } from "../data/questionGenerator";
 import type { Hit } from "../types";
 import {
   ANSWER_STAGGER_MS,
@@ -43,6 +43,7 @@ const BONUS_LABEL_Y = BONUS_ROW_Y - 42;
 
 export class GameScene extends Phaser.Scene {
   private hits: Hit[] = [];
+  private decade!: number;
   private stackManager!: StackManager;
   private cluePopup!: CluePopup;
 
@@ -69,8 +70,10 @@ export class GameScene extends Phaser.Scene {
     super("Game");
   }
 
-  create(): void {
-    this.hits = this.registry.get("hits") as Hit[];
+  create(data: { decade: number }): void {
+    this.decade = data.decade;
+    const allHits = this.registry.get("hits") as Hit[];
+    this.hits = allHits.filter((h) => decadeOf(h.year) === this.decade);
     this.clueShown = false;
     this.score = 0;
     this.correctCount = 0;
@@ -180,7 +183,7 @@ export class GameScene extends Phaser.Scene {
 
     if (!this.clueShown) {
       this.clueShown = true;
-      this.cluePopup.show(SESSION_INSTRUCTIONS, () => {
+      this.cluePopup.show(buildSessionInstructions(this.decade), () => {
         this.spawnAnswers(question);
       });
     } else {
@@ -268,7 +271,7 @@ export class GameScene extends Phaser.Scene {
 
       const isGameOver = this.stackManager.addMiss();
       if (isGameOver) {
-        this.time.delayedCall(500, () => this.scene.start("GameOver", { score: this.score }));
+        this.time.delayedCall(500, () => this.scene.start("GameOver", { score: this.score, decade: this.decade }));
         return;
       }
     } else {

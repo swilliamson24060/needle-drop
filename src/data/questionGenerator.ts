@@ -1,14 +1,18 @@
 import { BONUS_PEAK_OFFSET, BONUS_POINTS, STACK_ROWS } from "../game/constants";
 import type { ChartRow, Hit, PeakAnswer, Question } from "../types";
 
-/** One-time rule text shown in the round-1 popup. */
-export const SESSION_INSTRUCTIONS =
-  "The screens will display an artist and one year that the artist made the Billboard Top 100. " +
-  "Tap the correct Song Title by that artist. " +
-  "The blocks stack for each incorrect answer and the game ends when a block touches the stack " +
-  `or when the stack reaches ${STACK_ROWS} high. Every 3 correct answers erases a row from the stack. ` +
-  "Every question also shows 3 gold bonus blocks with the hit's peak chart position — " +
-  `tap the correct one for ${BONUS_POINTS} bonus points.`;
+/** One-time rule text shown in the round-1 popup, naming the decade the player picked. */
+export function buildSessionInstructions(decade: number): string {
+  return (
+    "The screens will display an artist and one year that the artist made the Billboard Top 100. " +
+    "Tap the correct Song Title by that artist. " +
+    "The blocks stack for each incorrect answer and the game ends when a block touches the stack " +
+    `or when the stack reaches ${STACK_ROWS} high. Every 3 correct answers erases a row from the stack. ` +
+    "Every question also shows 3 gold bonus blocks with the hit's peak chart position — " +
+    `tap the correct one for ${BONUS_POINTS} bonus points. ` +
+    `You picked the ${decade}s, so every artist, year, and answer choice will come from that decade.`
+  );
+}
 
 /** Groups raw chart rows into one Hit per (performer, year, title), collecting every month it charted. */
 export function buildHits(rows: ChartRow[]): Hit[] {
@@ -28,6 +32,26 @@ export function buildHits(rows: ChartRow[]): Hit[] {
   }
 
   return [...hitsByKey.values()];
+}
+
+const MIN_HITS_PER_DECADE = 3;
+
+/** The decade (e.g. 1980) a given year falls into. */
+export function decadeOf(year: number): number {
+  return Math.floor(year / 10) * 10;
+}
+
+/** Every decade with enough hits to generate a question, sorted oldest first. */
+export function getAvailableDecades(allHits: Hit[]): number[] {
+  const counts = new Map<number, number>();
+  for (const hit of allHits) {
+    const decade = decadeOf(hit.year);
+    counts.set(decade, (counts.get(decade) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .filter(([, count]) => count >= MIN_HITS_PER_DECADE)
+    .map(([decade]) => decade)
+    .sort((a, b) => a - b);
 }
 
 function randomInt(maxExclusive: number): number {

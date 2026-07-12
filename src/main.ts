@@ -3,6 +3,7 @@ import { GAME_HEIGHT, GAME_WIDTH } from "./game/constants";
 import { BG_CREAM } from "./game/theme";
 import { BootScene } from "./scenes/BootScene";
 import { MenuScene } from "./scenes/MenuScene";
+import { DecadeSelectScene } from "./scenes/DecadeSelectScene";
 import { GameScene } from "./scenes/GameScene";
 import { GameOverScene } from "./scenes/GameOverScene";
 
@@ -20,7 +21,7 @@ function startGame() {
     input: {
       activePointers: 1,
     },
-    scene: [BootScene, MenuScene, GameScene, GameOverScene],
+    scene: [BootScene, MenuScene, DecadeSelectScene, GameScene, GameOverScene],
   });
 
   if (import.meta.env.DEV) {

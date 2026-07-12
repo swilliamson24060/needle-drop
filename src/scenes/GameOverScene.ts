@@ -8,7 +8,7 @@ export class GameOverScene extends Phaser.Scene {
     super("GameOver");
   }
 
-  create(data: { score: number }): void {
+  create(data: { score: number; decade: number }): void {
     const bg = this.add.graphics();
     bg.fillGradientStyle(BG_GRADIENT_TOP, BG_GRADIENT_TOP, BG_GRADIENT_BOTTOM, BG_GRADIENT_BOTTOM, 1);
     bg.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
@@ -45,6 +45,6 @@ export class GameOverScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    button.on("pointerdown", () => this.scene.start("Game"));
+    button.on("pointerdown", () => this.scene.start("Game", { decade: data.decade }));
   }
 }
