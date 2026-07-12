@@ -12,7 +12,7 @@ const PANEL_HEIGHT = 320;
 const BLOCK_X_POSITIONS = [GAME_WIDTH * 0.1833, GAME_WIDTH * 0.5, GAME_WIDTH * 0.8167];
 const BLOCK_Y = GAME_HEIGHT / 2 + 10;
 const PROMPT_TEXT = "⭐ Bonus!\nWhat was the peak chart position?";
-const FEEDBACK_DELAY_MS = 900;
+const FEEDBACK_DELAY_MS = 5000;
 
 /**
  * Full-screen modal shown right after a correct answer: the player must pick the hit's
