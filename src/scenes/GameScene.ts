@@ -120,10 +120,10 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5, 0);
 
     this.rightSign = new SignBadge(
-      this, GAME_WIDTH * 0.27, GAME_HEIGHT - 46, "RIGHT!", 150, 52, RIGHT_SIGN_COLOR
+      this, GAME_WIDTH * 0.27, GAME_HEIGHT - 66, "RIGHT!", 150, 52, RIGHT_SIGN_COLOR
     );
     this.sorrySign = new SignBadge(
-      this, GAME_WIDTH * 0.73, GAME_HEIGHT - 46, "OOH, SORRY!", 180, 52, SORRY_SIGN_COLOR
+      this, GAME_WIDTH * 0.73, GAME_HEIGHT - 66, "OOH, SORRY!", 180, 52, SORRY_SIGN_COLOR
     );
 
     this.bonusLabel = this.add
