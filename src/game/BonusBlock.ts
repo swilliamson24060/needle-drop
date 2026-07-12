@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { BONUS_AMBER, FONT_FAMILY } from "./theme";
+import { BONUS_AMBER, FONT_FAMILY, TEXT_DARK, toCssHex } from "./theme";
 import { drawRoundedRectWithShadow } from "../ui/roundedPanel";
 
 export type BonusTapHandler = (block: BonusBlock) => void;
@@ -20,14 +20,14 @@ export class BonusBlock {
     const reachedLabel = scene.add.text(0, -14, "Reached", {
       fontSize: "12px",
       fontFamily: FONT_FAMILY,
-      color: "#ffffff",
+      color: toCssHex(TEXT_DARK),
       fontStyle: "600",
     }).setOrigin(0.5);
 
     const numberLabel = scene.add.text(0, 8, `#${peakPosition}`, {
       fontSize: "20px",
       fontFamily: FONT_FAMILY,
-      color: "#ffffff",
+      color: toCssHex(TEXT_DARK),
       fontStyle: "800",
     }).setOrigin(0.5);
 

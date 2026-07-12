@@ -32,7 +32,7 @@ export class CluePopup {
     const buttonLabel = scene.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 180, "Okay", {
       fontSize: "18px",
       fontFamily: FONT_FAMILY,
-      color: "#ffffff",
+      color: toCssHex(TEXT_DARK),
       fontStyle: "700",
     }).setOrigin(0.5);
 

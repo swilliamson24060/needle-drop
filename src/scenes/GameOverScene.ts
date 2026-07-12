@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { GAME_HEIGHT, GAME_WIDTH } from "../game/constants";
-import { BG_GRADIENT_BOTTOM, BG_GRADIENT_TOP, CORAL, FONT_FAMILY, TEXT_DARK, toCssHex } from "../game/theme";
+import { BG_GRADIENT_BOTTOM, BG_GRADIENT_TOP, CORAL, CORAL_TEXT, FONT_FAMILY, TEXT_DARK, toCssHex } from "../game/theme";
 import { drawRoundedRectWithShadow } from "../ui/roundedPanel";
 
 export class GameOverScene extends Phaser.Scene {
@@ -17,7 +17,7 @@ export class GameOverScene extends Phaser.Scene {
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 100, "Game Over", {
         fontSize: "36px",
         fontFamily: FONT_FAMILY,
-        color: toCssHex(CORAL),
+        color: toCssHex(CORAL_TEXT),
         fontStyle: "800",
       })
       .setOrigin(0.5);
@@ -40,7 +40,7 @@ export class GameOverScene extends Phaser.Scene {
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 70, "Play Again", {
         fontSize: "20px",
         fontFamily: FONT_FAMILY,
-        color: "#ffffff",
+        color: toCssHex(TEXT_DARK),
         fontStyle: "700",
       })
       .setOrigin(0.5);

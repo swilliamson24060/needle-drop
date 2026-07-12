@@ -3,7 +3,7 @@ import { FONT_FAMILY, toCssHex } from "../game/theme";
 
 const UNLIT_FILL = 0x2a2620;
 const UNLIT_BORDER = 0x4a4038;
-const UNLIT_TEXT = 0x8a7f74;
+const UNLIT_TEXT = 0xa89c8f;
 
 /** A marquee-style sign that sits dim/unlit until `flash()` briefly lights it up. */
 export class SignBadge {

@@ -44,7 +44,7 @@ export class MenuScene extends Phaser.Scene {
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 70, "Play", {
         fontSize: "22px",
         fontFamily: FONT_FAMILY,
-        color: "#ffffff",
+        color: toCssHex(TEXT_DARK),
         fontStyle: "700",
       })
       .setOrigin(0.5);

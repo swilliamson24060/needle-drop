@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { BLOCK_MAX_WIDTH, BLOCK_MIN_HEIGHT, BLOCK_MIN_WIDTH, FALL_SPEED_PX_PER_SEC, GAME_WIDTH } from "./constants";
-import { FONT_FAMILY } from "./theme";
+import { FONT_FAMILY, TEXT_DARK, toCssHex } from "./theme";
 import { drawRoundedRectWithShadow } from "../ui/roundedPanel";
 
 export type AnswerTapHandler = (answer: FallingAnswer) => void;
@@ -34,7 +34,7 @@ export class FallingAnswer {
     const label = scene.add.text(0, 0, title, {
       fontSize: `${FONT_SIZE}px`,
       fontFamily: FONT_FAMILY,
-      color: "#ffffff",
+      color: toCssHex(TEXT_DARK),
       align: "center",
       fontStyle: "700",
     });

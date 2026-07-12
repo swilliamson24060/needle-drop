@@ -15,7 +15,7 @@ import {
   BLOCK_COLORS,
   BONUS_AMBER,
   CARD_WHITE,
-  CORAL,
+  CORAL_TEXT,
   FONT_FAMILY,
   TEXT_DARK,
   TEXT_GRAY,
@@ -94,7 +94,7 @@ export class GameScene extends Phaser.Scene {
     this.missText = this.add.text(GAME_WIDTH - 16, 16, `Misses: 0/${STACK_ROWS}`, {
       fontSize: "18px",
       fontFamily: FONT_FAMILY,
-      color: toCssHex(CORAL),
+      color: toCssHex(CORAL_TEXT),
       fontStyle: "700",
     }).setOrigin(1, 0);
 

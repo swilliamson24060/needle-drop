@@ -13,8 +13,11 @@ export const SOFT_GREEN = 0xa8d9b5;
 export const BLOCK_COLORS = [CORAL, SKY_BLUE, SOFT_YELLOW, SOFT_GREEN];
 
 export const TEXT_DARK = 0x3a342e;
-export const TEXT_GRAY = 0x9c9186;
+export const TEXT_GRAY = 0x615850;
 export const CARD_WHITE = 0xffffff;
+
+/** Darker stand-in for CORAL when used as text color — CORAL itself is too light to read reliably. */
+export const CORAL_TEXT = 0x7a2620;
 
 export const STACK_FILL = 0xe8776e;
 export const STACK_FLOOR_LINE = 0xd9c7b8;

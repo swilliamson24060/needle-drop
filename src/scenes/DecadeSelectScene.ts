@@ -56,7 +56,7 @@ export class DecadeSelectScene extends Phaser.Scene {
         .text(x, y, `${decade}s`, {
           fontSize: "22px",
           fontFamily: FONT_FAMILY,
-          color: "#ffffff",
+          color: toCssHex(TEXT_DARK),
           fontStyle: "800",
         })
         .setOrigin(0.5);
