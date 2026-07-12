@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { FALL_START_Y, GAME_WIDTH, ROW_HEIGHT, STACK_ROWS, STACK_TOP_Y } from "./constants";
+import { STACK_FILL, STACK_FLOOR_LINE } from "./theme";
 
 /** Tracks how many rows of the bottom stack are filled, and renders it. */
 export class StackManager {
@@ -46,12 +47,12 @@ export class StackManager {
     for (let i = 0; i < this.filledRows; i++) {
       const rowIndex = STACK_ROWS - 1 - i; // fill from the bottom up
       const y = STACK_TOP_Y + rowIndex * ROW_HEIGHT;
-      this.graphics.fillStyle(0xb33636, 1);
-      this.graphics.fillRect(2, y, GAME_WIDTH - 4, ROW_HEIGHT - 2);
+      this.graphics.fillStyle(STACK_FILL, 1);
+      this.graphics.fillRoundedRect(4, y, GAME_WIDTH - 8, ROW_HEIGHT - 6, 10);
     }
 
     // Stack floor line for visual reference.
-    this.graphics.lineStyle(1, 0x444444, 1);
+    this.graphics.lineStyle(1, STACK_FLOOR_LINE, 1);
     this.graphics.lineBetween(0, STACK_TOP_Y - 0.5, GAME_WIDTH, STACK_TOP_Y - 0.5);
   }
 }

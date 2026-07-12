@@ -8,11 +8,26 @@ import {
   GAME_WIDTH,
   POINTS_PER_CORRECT,
 } from "../game/constants";
+import {
+  BG_CREAM,
+  BLOCK_COLORS,
+  CARD_WHITE,
+  CORAL,
+  FONT_FAMILY,
+  SOFT_GREEN,
+  TEXT_DARK,
+  TEXT_GRAY,
+  toCssHex,
+} from "../game/theme";
 import { FallingAnswer } from "../game/FallingAnswer";
 import { StackManager } from "../game/StackManager";
 import { CluePopup } from "../ui/CluePopup";
 
 const ANSWER_X_POSITIONS = [GAME_WIDTH * 0.1833, GAME_WIDTH * 0.5, GAME_WIDTH * 0.8167];
+const CARD_LEFT = 20;
+const CARD_TOP = 56;
+const CARD_RADIUS = 20;
+const CARD_PADDING = 16;
 
 export class GameScene extends Phaser.Scene {
   private hits: Hit[] = [];
@@ -30,6 +45,7 @@ export class GameScene extends Phaser.Scene {
 
   private scoreText!: Phaser.GameObjects.Text;
   private missText!: Phaser.GameObjects.Text;
+  private ribbonCard!: Phaser.GameObjects.Graphics;
   private artistLabel!: Phaser.GameObjects.Text;
   private yearLabel!: Phaser.GameObjects.Text;
   private feedbackFlash!: Phaser.GameObjects.Rectangle;
@@ -48,22 +64,40 @@ export class GameScene extends Phaser.Scene {
     this.currentAnswers = [];
     this.pendingSpawnTimers = [];
 
-    this.scoreText = this.add.text(16, 16, "Score: 0", { fontSize: "18px", color: "#ffffff" });
+    this.cameras.main.setBackgroundColor(BG_CREAM);
+
+    this.scoreText = this.add.text(16, 16, "Score: 0", {
+      fontSize: "18px",
+      fontFamily: FONT_FAMILY,
+      color: toCssHex(TEXT_DARK),
+      fontStyle: "700",
+    });
     this.missText = this.add.text(GAME_WIDTH - 16, 16, "Misses: 0/8", {
       fontSize: "18px",
-      color: "#ffffff",
+      fontFamily: FONT_FAMILY,
+      color: toCssHex(CORAL),
+      fontStyle: "700",
     }).setOrigin(1, 0);
+
+    this.ribbonCard = this.add.graphics();
+
     this.artistLabel = this.add
-      .text(GAME_WIDTH / 2, 46, "", {
+      .text(GAME_WIDTH / 2, CARD_TOP + CARD_PADDING, "", {
         fontSize: "22px",
-        color: "#ffe066",
-        fontStyle: "bold",
+        fontFamily: FONT_FAMILY,
+        color: toCssHex(TEXT_DARK),
+        fontStyle: "700",
         align: "center",
-        wordWrap: { width: GAME_WIDTH - 40 },
+        wordWrap: { width: GAME_WIDTH - 40 - CARD_PADDING * 2 },
       })
       .setOrigin(0.5, 0);
     this.yearLabel = this.add
-      .text(GAME_WIDTH / 2, 82, "", { fontSize: "19px", color: "#cccccc", align: "center" })
+      .text(GAME_WIDTH / 2, 0, "", {
+        fontSize: "16px",
+        fontFamily: FONT_FAMILY,
+        color: toCssHex(TEXT_GRAY),
+        align: "center",
+      })
       .setOrigin(0.5, 0);
 
     this.feedbackFlash = this.add.rectangle(0, 0, GAME_WIDTH, this.scale.height, 0xffffff, 0);
@@ -100,10 +134,15 @@ export class GameScene extends Phaser.Scene {
     const question = generateQuestion(this.hits);
 
     this.artistLabel.setText(question.category);
+    this.yearLabel.y = this.artistLabel.y + this.artistLabel.height + 4;
     this.yearLabel.setText(question.subcategory);
 
-    // Reflow below the artist name in case it wrapped to a second line.
-    this.yearLabel.y = this.artistLabel.y + this.artistLabel.height + 6;
+    const cardHeight = this.yearLabel.y + this.yearLabel.height + CARD_PADDING - CARD_TOP;
+    this.ribbonCard.clear();
+    this.ribbonCard.fillStyle(0x000000, 0.08);
+    this.ribbonCard.fillRoundedRect(CARD_LEFT, CARD_TOP + 4, GAME_WIDTH - CARD_LEFT * 2, cardHeight, CARD_RADIUS);
+    this.ribbonCard.fillStyle(CARD_WHITE, 1);
+    this.ribbonCard.fillRoundedRect(CARD_LEFT, CARD_TOP, GAME_WIDTH - CARD_LEFT * 2, cardHeight, CARD_RADIUS);
 
     if (!this.clueShown) {
       this.clueShown = true;
@@ -119,12 +158,13 @@ export class GameScene extends Phaser.Scene {
   private spawnAnswers(question: ReturnType<typeof generateQuestion>): void {
     const answers = Phaser.Utils.Array.Shuffle([...question.answers]);
     const lanes = Phaser.Utils.Array.Shuffle([...ANSWER_X_POSITIONS]);
+    const colors = Phaser.Utils.Array.Shuffle([...BLOCK_COLORS]);
 
     this.currentAnswers = [];
     this.pendingSpawnTimers = answers.map((a, i) =>
       this.time.delayedCall(i * ANSWER_STAGGER_MS, () => {
         const block = new FallingAnswer(
-          this, lanes[i], FALL_START_Y, a.title, a.isCorrect,
+          this, lanes[i], FALL_START_Y, a.title, colors[i % colors.length], a.isCorrect,
           (tapped) => this.handleTap(tapped)
         );
         this.currentAnswers.push(block);
@@ -167,7 +207,7 @@ export class GameScene extends Phaser.Scene {
       this.score += POINTS_PER_CORRECT;
       this.correctCount++;
       this.scoreText.setText(`Score: ${this.score}`);
-      this.flash(0x33ff77);
+      this.flash(SOFT_GREEN);
 
       if (this.correctCount % CORRECT_STREAK_FOR_ROW_CLEAR === 0) {
         this.stackManager.clearRow();

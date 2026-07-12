@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 import { BLOCK_MAX_WIDTH, BLOCK_MIN_HEIGHT, BLOCK_MIN_WIDTH, FALL_SPEED_PX_PER_SEC, GAME_WIDTH } from "./constants";
+import { FONT_FAMILY } from "./theme";
+import { drawRoundedRectWithShadow } from "../ui/roundedPanel";
 
 export type AnswerTapHandler = (answer: FallingAnswer) => void;
 
@@ -7,6 +9,7 @@ const FONT_SIZE = 18;
 const HORIZONTAL_PADDING = 24;
 const VERTICAL_PADDING = 16;
 const SCREEN_MARGIN = 10;
+const CORNER_RADIUS = 18;
 
 /** A single falling answer block: sizes itself to fit `title`, tappable, falls at a constant speed. */
 export class FallingAnswer {
@@ -21,6 +24,7 @@ export class FallingAnswer {
     preferredX: number,
     startY: number,
     title: string,
+    color: number,
     isCorrect: boolean,
     onTap: AnswerTapHandler
   ) {
@@ -29,8 +33,10 @@ export class FallingAnswer {
 
     const label = scene.add.text(0, 0, title, {
       fontSize: `${FONT_SIZE}px`,
+      fontFamily: FONT_FAMILY,
       color: "#ffffff",
       align: "center",
+      fontStyle: "700",
     });
 
     // Widen the block to fit the title on one line, unless it's too long for the screen —
@@ -44,8 +50,7 @@ export class FallingAnswer {
     const blockWidth = Math.min(Math.max(singleLineWidth, BLOCK_MIN_WIDTH), BLOCK_MAX_WIDTH);
     const blockHeight = Math.max(label.height + VERTICAL_PADDING, BLOCK_MIN_HEIGHT);
 
-    const bg = scene.add.rectangle(0, 0, blockWidth, blockHeight, 0x2f6fed, 1);
-    bg.setStrokeStyle(2, 0xffffff, 0.8);
+    const bg = drawRoundedRectWithShadow(scene, blockWidth, blockHeight, color, CORNER_RADIUS);
 
     // Keep the whole block on-screen even if it ended up wider than its preferred slot.
     const halfWidth = blockWidth / 2;

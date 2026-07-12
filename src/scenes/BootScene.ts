@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { loadChartRows } from "../data/csvLoader";
 import { buildHits } from "../data/questionGenerator";
 import { GAME_HEIGHT, GAME_WIDTH } from "../game/constants";
+import { BG_CREAM, CORAL, FONT_FAMILY, TEXT_DARK, toCssHex } from "../game/theme";
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -9,10 +10,13 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.cameras.main.setBackgroundColor(BG_CREAM);
+
     const statusText = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, "Loading chart data…", {
         fontSize: "18px",
-        color: "#ffffff",
+        fontFamily: FONT_FAMILY,
+        color: toCssHex(TEXT_DARK),
       })
       .setOrigin(0.5);
 
@@ -28,7 +32,7 @@ export class BootScene extends Phaser.Scene {
       .catch((err) => {
         console.error(err);
         statusText.setText(`Failed to load chart data:\n${(err as Error).message}`);
-        statusText.setColor("#ff6666");
+        statusText.setColor(toCssHex(CORAL));
       });
   }
 }
