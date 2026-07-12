@@ -5,16 +5,15 @@ import {
   ANSWER_STAGGER_MS,
   CORRECT_STREAK_FOR_ROW_CLEAR,
   FALL_START_Y,
+  GAME_HEIGHT,
   GAME_WIDTH,
   POINTS_PER_CORRECT,
 } from "../game/constants";
 import {
-  BG_CREAM,
   BLOCK_COLORS,
   CARD_WHITE,
   CORAL,
   FONT_FAMILY,
-  SOFT_GREEN,
   TEXT_DARK,
   TEXT_GRAY,
   toCssHex,
@@ -22,6 +21,11 @@ import {
 import { FallingAnswer } from "../game/FallingAnswer";
 import { StackManager } from "../game/StackManager";
 import { CluePopup } from "../ui/CluePopup";
+import { SignBadge } from "../ui/signBadge";
+import { drawStudioBackground } from "../game/studioBackground";
+
+const RIGHT_SIGN_COLOR = 0xff6b4a;
+const SORRY_SIGN_COLOR = 0xd9534f;
 
 const ANSWER_X_POSITIONS = [GAME_WIDTH * 0.1833, GAME_WIDTH * 0.5, GAME_WIDTH * 0.8167];
 const CARD_LEFT = 20;
@@ -48,7 +52,8 @@ export class GameScene extends Phaser.Scene {
   private ribbonCard!: Phaser.GameObjects.Graphics;
   private artistLabel!: Phaser.GameObjects.Text;
   private yearLabel!: Phaser.GameObjects.Text;
-  private feedbackFlash!: Phaser.GameObjects.Rectangle;
+  private rightSign!: SignBadge;
+  private sorrySign!: SignBadge;
 
   constructor() {
     super("Game");
@@ -64,7 +69,7 @@ export class GameScene extends Phaser.Scene {
     this.currentAnswers = [];
     this.pendingSpawnTimers = [];
 
-    this.cameras.main.setBackgroundColor(BG_CREAM);
+    drawStudioBackground(this);
 
     this.scoreText = this.add.text(16, 16, "Score: 0", {
       fontSize: "18px",
@@ -100,9 +105,12 @@ export class GameScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0);
 
-    this.feedbackFlash = this.add.rectangle(0, 0, GAME_WIDTH, this.scale.height, 0xffffff, 0);
-    this.feedbackFlash.setOrigin(0);
-    this.feedbackFlash.setDepth(50);
+    this.rightSign = new SignBadge(
+      this, GAME_WIDTH * 0.27, GAME_HEIGHT - 46, "RIGHT!", 150, 52, RIGHT_SIGN_COLOR
+    );
+    this.sorrySign = new SignBadge(
+      this, GAME_WIDTH * 0.73, GAME_HEIGHT - 46, "OOH, SORRY!", 180, 52, SORRY_SIGN_COLOR
+    );
 
     this.stackManager = new StackManager(this);
     this.cluePopup = new CluePopup(this);
@@ -196,7 +204,7 @@ export class GameScene extends Phaser.Scene {
     if (wasMiss) {
       this.missCount++;
       this.missText.setText(`Misses: ${this.missCount > 8 ? 8 : this.missCount}/8`);
-      this.flash(0xff3333);
+      this.sorrySign.flash(this);
 
       const isGameOver = this.stackManager.addMiss();
       if (isGameOver) {
@@ -207,7 +215,7 @@ export class GameScene extends Phaser.Scene {
       this.score += POINTS_PER_CORRECT;
       this.correctCount++;
       this.scoreText.setText(`Score: ${this.score}`);
-      this.flash(SOFT_GREEN);
+      this.rightSign.flash(this);
 
       if (this.correctCount % CORRECT_STREAK_FOR_ROW_CLEAR === 0) {
         this.stackManager.clearRow();
@@ -215,15 +223,5 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.time.delayedCall(700, () => this.startNextRound());
-  }
-
-  private flash(color: number): void {
-    this.feedbackFlash.setFillStyle(color, 0.35);
-    this.feedbackFlash.setAlpha(1);
-    this.tweens.add({
-      targets: this.feedbackFlash,
-      alpha: 0,
-      duration: 300,
-    });
   }
 }
