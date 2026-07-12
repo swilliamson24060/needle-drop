@@ -8,6 +8,7 @@ import {
   GAME_HEIGHT,
   GAME_WIDTH,
   POINTS_PER_CORRECT,
+  STACK_ROWS,
 } from "../game/constants";
 import {
   BLOCK_COLORS,
@@ -77,7 +78,7 @@ export class GameScene extends Phaser.Scene {
       color: toCssHex(TEXT_DARK),
       fontStyle: "700",
     });
-    this.missText = this.add.text(GAME_WIDTH - 16, 16, "Misses: 0/8", {
+    this.missText = this.add.text(GAME_WIDTH - 16, 16, `Misses: 0/${STACK_ROWS}`, {
       fontSize: "18px",
       fontFamily: FONT_FAMILY,
       color: toCssHex(CORAL),
@@ -203,7 +204,7 @@ export class GameScene extends Phaser.Scene {
 
     if (wasMiss) {
       this.missCount++;
-      this.missText.setText(`Misses: ${this.missCount > 8 ? 8 : this.missCount}/8`);
+      this.missText.setText(`Misses: ${Math.min(this.missCount, STACK_ROWS)}/${STACK_ROWS}`);
       this.sorrySign.flash(this);
 
       const isGameOver = this.stackManager.addMiss();

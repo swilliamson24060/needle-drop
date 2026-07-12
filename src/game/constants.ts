@@ -1,7 +1,7 @@
 export const GAME_WIDTH = 480;
 export const GAME_HEIGHT = 800;
 
-export const STACK_ROWS = 8;
+export const STACK_ROWS = 6;
 export const ROW_HEIGHT = 48;
 export const STACK_AREA_HEIGHT = STACK_ROWS * ROW_HEIGHT;
 export const STACK_TOP_Y = GAME_HEIGHT - STACK_AREA_HEIGHT;
