@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { GAME_HEIGHT, GAME_WIDTH } from "../game/constants";
-import { BG_GRADIENT_BOTTOM, BG_GRADIENT_TOP, CORAL, CORAL_TEXT, FONT_FAMILY, TEXT_DARK, toCssHex } from "../game/theme";
+import { BG_GRADIENT_BOTTOM, BG_GRADIENT_TOP, CORAL, CORAL_TEXT, FONT_FAMILY, SKY_BLUE, TEXT_DARK, toCssHex } from "../game/theme";
 import { drawRoundedRectWithShadow } from "../ui/roundedPanel";
 
 export class GameOverScene extends Phaser.Scene {
@@ -46,5 +46,21 @@ export class GameOverScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     button.on("pointerdown", () => this.scene.start("Game", { decade: data.decade }));
+
+    const decadeButtonBg = drawRoundedRectWithShadow(this, 220, 56, SKY_BLUE, 28);
+    const decadeButton = this.add.container(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 150, [decadeButtonBg]);
+    decadeButton.setSize(220, 56);
+    decadeButton.setInteractive({ useHandCursor: true });
+
+    this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 150, "Change Decade", {
+        fontSize: "18px",
+        fontFamily: FONT_FAMILY,
+        color: toCssHex(TEXT_DARK),
+        fontStyle: "700",
+      })
+      .setOrigin(0.5);
+
+    decadeButton.on("pointerdown", () => this.scene.start("DecadeSelect"));
   }
 }
