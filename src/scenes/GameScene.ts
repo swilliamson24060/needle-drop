@@ -112,7 +112,7 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5, 0);
     this.yearLabel = this.add
       .text(GAME_WIDTH / 2, 0, "", {
-        fontSize: "20px",
+        fontSize: "22px",
         fontFamily: FONT_FAMILY,
         color: toCssHex(TEXT_GRAY),
         align: "center",
