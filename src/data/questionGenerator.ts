@@ -73,22 +73,40 @@ function sampleDistinct<T>(pool: readonly T[], count: number, exclude: Set<T>): 
 }
 
 /**
- * Builds the 3 bonus answers for a hit's peak chart position: the real peak, plus one
- * `peak - 5` and one `peak + 5` — falling back to a larger positive offset if the `-5`
- * candidate would drop below 1 (chart positions never go below 1).
+ * Builds the 3 bonus answers for a hit's peak chart position: the real peak, plus 2 wrong
+ * values nearby. The two wrong values are placed on randomly chosen sides of the real peak
+ * (both below, both above, or one on each side) so the correct answer's numeric rank among
+ * the three — lowest, middle, or highest — is unpredictable. Previously the wrong values
+ * were always `peak - 5` and `peak + 5`, which made the real peak the numeric median (and
+ * therefore guessable) in the vast majority of questions.
  */
 function buildBonusAnswers(correctPeak: number): [PeakAnswer, PeakAnswer, PeakAnswer] {
   const wrongValues = new Set<number>();
   const tryAdd = (value: number) => {
-    if (value >= 1 && value !== correctPeak) wrongValues.add(value);
+    if (value >= 1 && value !== correctPeak && !wrongValues.has(value)) {
+      wrongValues.add(value);
+      return true;
+    }
+    return false;
   };
 
-  tryAdd(correctPeak - BONUS_PEAK_OFFSET);
-  tryAdd(correctPeak + BONUS_PEAK_OFFSET);
+  // Each wrong value prefers a randomly chosen side of the real peak; if that side would go
+  // below 1 (or collide), it falls back to the opposite side instead.
+  const addOnSide = (magnitude: number, preferBelow: boolean) => {
+    const primary = preferBelow ? correctPeak - magnitude : correctPeak + magnitude;
+    if (tryAdd(primary)) return;
+    tryAdd(preferBelow ? correctPeak + magnitude : correctPeak - magnitude);
+  };
 
-  let extraOffset = BONUS_PEAK_OFFSET * 2;
+  const pattern = randomInt(3); // 0: both below, 1: both above, 2: one on each side
+  const [firstBelow, secondBelow] = pattern === 0 ? [true, true] : pattern === 1 ? [false, false] : [true, false];
+
+  addOnSide(BONUS_PEAK_OFFSET, firstBelow);
+  addOnSide(BONUS_PEAK_OFFSET * 2, secondBelow);
+
+  let extraOffset = BONUS_PEAK_OFFSET * 3;
   while (wrongValues.size < 2) {
-    tryAdd(correctPeak + extraOffset);
+    tryAdd(correctPeak + extraOffset) || tryAdd(correctPeak - extraOffset);
     extraOffset += BONUS_PEAK_OFFSET;
   }
 
