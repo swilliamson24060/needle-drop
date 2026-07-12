@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { GAME_HEIGHT, GAME_WIDTH } from "../game/constants";
-import { BG_GRADIENT_BOTTOM, BG_GRADIENT_TOP, CORAL, FONT_FAMILY, TEXT_DARK, TEXT_GRAY, toCssHex } from "../game/theme";
+import { BG_GRADIENT_BOTTOM, BG_GRADIENT_TOP, CORAL, FONT_FAMILY, SOFT_GREEN, TEXT_DARK, TEXT_GRAY, toCssHex } from "../game/theme";
 import { drawRoundedRectWithShadow } from "../ui/roundedPanel";
 
 export class MenuScene extends Phaser.Scene {
@@ -50,5 +50,21 @@ export class MenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     button.on("pointerdown", () => this.scene.start("DecadeSelect"));
+
+    const leaderboardButtonBg = drawRoundedRectWithShadow(this, 200, 52, SOFT_GREEN, 26);
+    const leaderboardButton = this.add.container(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 145, [leaderboardButtonBg]);
+    leaderboardButton.setSize(200, 52);
+    leaderboardButton.setInteractive({ useHandCursor: true });
+
+    this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 145, "Leaderboard", {
+        fontSize: "18px",
+        fontFamily: FONT_FAMILY,
+        color: toCssHex(TEXT_DARK),
+        fontStyle: "700",
+      })
+      .setOrigin(0.5);
+
+    leaderboardButton.on("pointerdown", () => this.scene.start("Leaderboard"));
   }
 }

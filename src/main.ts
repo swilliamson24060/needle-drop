@@ -6,6 +6,7 @@ import { MenuScene } from "./scenes/MenuScene";
 import { DecadeSelectScene } from "./scenes/DecadeSelectScene";
 import { GameScene } from "./scenes/GameScene";
 import { GameOverScene } from "./scenes/GameOverScene";
+import { LeaderboardScene } from "./scenes/LeaderboardScene";
 
 function startGame() {
   const game = new Phaser.Game({
@@ -21,7 +22,7 @@ function startGame() {
     input: {
       activePointers: 1,
     },
-    scene: [BootScene, MenuScene, DecadeSelectScene, GameScene, GameOverScene],
+    scene: [BootScene, MenuScene, DecadeSelectScene, GameScene, GameOverScene, LeaderboardScene],
   });
 
   if (import.meta.env.DEV) {

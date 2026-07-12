@@ -1,7 +1,19 @@
 import Phaser from "phaser";
 import { GAME_HEIGHT, GAME_WIDTH } from "../game/constants";
-import { BG_GRADIENT_BOTTOM, BG_GRADIENT_TOP, CORAL, CORAL_TEXT, FONT_FAMILY, SKY_BLUE, TEXT_DARK, toCssHex } from "../game/theme";
+import {
+  BG_GRADIENT_BOTTOM,
+  BG_GRADIENT_TOP,
+  CORAL,
+  CORAL_TEXT,
+  FONT_FAMILY,
+  SKY_BLUE,
+  SOFT_GREEN,
+  TEXT_DARK,
+  TEXT_GRAY,
+  toCssHex,
+} from "../game/theme";
 import { drawRoundedRectWithShadow } from "../ui/roundedPanel";
+import { getOrPromptPlayerName, submitScore } from "../data/leaderboard";
 
 export class GameOverScene extends Phaser.Scene {
   constructor() {
@@ -30,6 +42,19 @@ export class GameOverScene extends Phaser.Scene {
         fontStyle: "700",
       })
       .setOrigin(0.5);
+
+    const submitStatus = this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, "Saving score...", {
+        fontSize: "13px",
+        fontFamily: FONT_FAMILY,
+        color: toCssHex(TEXT_GRAY),
+      })
+      .setOrigin(0.5);
+
+    const name = getOrPromptPlayerName();
+    submitScore(name, data.score ?? 0, data.decade)
+      .then(() => submitStatus.setText("Score saved to the leaderboard!"))
+      .catch(() => submitStatus.setText("Couldn't save your score — check your connection."));
 
     const buttonBg = drawRoundedRectWithShadow(this, 220, 60, CORAL, 30);
     const button = this.add.container(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 70, [buttonBg]);
@@ -62,5 +87,21 @@ export class GameOverScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     decadeButton.on("pointerdown", () => this.scene.start("DecadeSelect"));
+
+    const leaderboardButtonBg = drawRoundedRectWithShadow(this, 220, 56, SOFT_GREEN, 28);
+    const leaderboardButton = this.add.container(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 220, [leaderboardButtonBg]);
+    leaderboardButton.setSize(220, 56);
+    leaderboardButton.setInteractive({ useHandCursor: true });
+
+    this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 220, "Leaderboard", {
+        fontSize: "18px",
+        fontFamily: FONT_FAMILY,
+        color: toCssHex(TEXT_DARK),
+        fontStyle: "700",
+      })
+      .setOrigin(0.5);
+
+    leaderboardButton.on("pointerdown", () => this.scene.start("Leaderboard"));
   }
 }
