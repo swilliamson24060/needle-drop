@@ -16,7 +16,7 @@ import { fetchTopScores, type LeaderboardEntry } from "../data/leaderboard";
 const LIST_TOP = 150;
 const LIST_BOTTOM = GAME_HEIGHT - 110;
 const LIST_HEIGHT = LIST_BOTTOM - LIST_TOP;
-const ROW_HEIGHT = 40;
+const ROW_HEIGHT = 52;
 const LIST_LEFT = 24;
 const LIST_WIDTH = GAME_WIDTH - LIST_LEFT * 2;
 
@@ -91,11 +91,20 @@ export class LeaderboardScene extends Phaser.Scene {
       );
       this.listContainer.add(
         this.add
-          .text(LIST_LEFT + 48, y + ROW_HEIGHT / 2, entry.name, {
+          .text(LIST_LEFT + 48, y + ROW_HEIGHT / 2 - 10, entry.name, {
             fontSize: "16px",
             fontFamily: FONT_FAMILY,
             color: toCssHex(TEXT_DARK),
             fontStyle: "700",
+          })
+          .setOrigin(0, 0.5)
+      );
+      this.listContainer.add(
+        this.add
+          .text(LIST_LEFT + 48, y + ROW_HEIGHT / 2 + 10, `${entry.decade}s`, {
+            fontSize: "12px",
+            fontFamily: FONT_FAMILY,
+            color: toCssHex(TEXT_GRAY),
           })
           .setOrigin(0, 0.5)
       );
