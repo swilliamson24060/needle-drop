@@ -8,8 +8,8 @@ export function buildSessionInstructions(decade: number): string {
     "Tap the correct Song Title by that artist. " +
     "The blocks stack for each incorrect answer and the game ends when a block touches the stack " +
     `or when the stack reaches ${STACK_ROWS} high. Every 3 correct answers erases a row from the stack. ` +
-    "Every question also shows 3 gold bonus blocks with the hit's peak chart position — " +
-    `tap the correct one for ${BONUS_POINTS} bonus points. ` +
+    "Answer correctly and a bonus round pops up: pick the hit's real peak chart position from " +
+    `3 choices for ${BONUS_POINTS} extra points. ` +
     `You picked the ${decade}s, so every artist, year, and answer choice will come from that decade.`
   );
 }

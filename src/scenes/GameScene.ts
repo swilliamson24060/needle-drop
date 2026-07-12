@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { buildSessionInstructions, decadeOf, generateQuestion } from "../data/questionGenerator";
-import type { Hit } from "../types";
+import type { Hit, Question } from "../types";
 import {
   ANSWER_STAGGER_MS,
   BONUS_POINTS,
@@ -13,7 +13,6 @@ import {
 } from "../game/constants";
 import {
   BLOCK_COLORS,
-  BONUS_AMBER,
   CARD_WHITE,
   CORAL_TEXT,
   FONT_FAMILY,
@@ -22,9 +21,9 @@ import {
   toCssHex,
 } from "../game/theme";
 import { FallingAnswer } from "../game/FallingAnswer";
-import { BonusBlock } from "../game/BonusBlock";
 import { StackManager } from "../game/StackManager";
 import { CluePopup } from "../ui/CluePopup";
+import { BonusPopup } from "../ui/BonusPopup";
 import { SignBadge } from "../ui/signBadge";
 import { drawStudioBackground } from "../game/studioBackground";
 
@@ -37,15 +36,12 @@ const CARD_TOP = 56;
 const CARD_RADIUS = 20;
 const CARD_PADDING = 16;
 
-const SIGN_Y = GAME_HEIGHT - 46;
-const BONUS_ROW_Y = SIGN_Y - 88;
-const BONUS_LABEL_Y = BONUS_ROW_Y - 42;
-
 export class GameScene extends Phaser.Scene {
   private hits: Hit[] = [];
   private decade!: number;
   private stackManager!: StackManager;
   private cluePopup!: CluePopup;
+  private bonusPopup!: BonusPopup;
 
   private clueShown = false;
 
@@ -55,7 +51,7 @@ export class GameScene extends Phaser.Scene {
   private roundActive = false;
   private currentAnswers: FallingAnswer[] = [];
   private pendingSpawnTimers: Phaser.Time.TimerEvent[] = [];
-  private bonusBlocks: BonusBlock[] = [];
+  private currentBonusAnswers: Question["bonusAnswers"] = null;
 
   private scoreText!: Phaser.GameObjects.Text;
   private missText!: Phaser.GameObjects.Text;
@@ -64,7 +60,6 @@ export class GameScene extends Phaser.Scene {
   private yearLabel!: Phaser.GameObjects.Text;
   private rightSign!: SignBadge;
   private sorrySign!: SignBadge;
-  private bonusLabel!: Phaser.GameObjects.Text;
 
   constructor() {
     super("Game");
@@ -81,7 +76,7 @@ export class GameScene extends Phaser.Scene {
     this.roundActive = false;
     this.currentAnswers = [];
     this.pendingSpawnTimers = [];
-    this.bonusBlocks = [];
+    this.currentBonusAnswers = null;
 
     drawStudioBackground(this);
 
@@ -126,19 +121,9 @@ export class GameScene extends Phaser.Scene {
       this, GAME_WIDTH * 0.73, GAME_HEIGHT - 66, "OOH, SORRY!", 180, 52, SORRY_SIGN_COLOR
     );
 
-    this.bonusLabel = this.add
-      .text(GAME_WIDTH / 2, BONUS_LABEL_Y, "⭐ Bonus: Peak Position?", {
-        fontSize: "14px",
-        fontFamily: FONT_FAMILY,
-        color: toCssHex(BONUS_AMBER),
-        fontStyle: "700",
-      })
-      .setOrigin(0.5)
-      .setDepth(60)
-      .setVisible(false);
-
     this.stackManager = new StackManager(this);
     this.cluePopup = new CluePopup(this);
+    this.bonusPopup = new BonusPopup(this);
 
     this.startNextRound();
   }
@@ -165,6 +150,7 @@ export class GameScene extends Phaser.Scene {
 
   private startNextRound(): void {
     const question = generateQuestion(this.hits);
+    this.currentBonusAnswers = question.bonusAnswers;
 
     this.artistLabel.setText(question.category);
     this.yearLabel.y = this.artistLabel.y + this.artistLabel.height + 4;
@@ -177,10 +163,6 @@ export class GameScene extends Phaser.Scene {
     this.ribbonCard.fillStyle(CARD_WHITE, 1);
     this.ribbonCard.fillRoundedRect(CARD_LEFT, CARD_TOP, GAME_WIDTH - CARD_LEFT * 2, cardHeight, CARD_RADIUS);
 
-    if (question.bonusAnswers) {
-      this.spawnBonusBlocks(question.bonusAnswers);
-    }
-
     if (!this.clueShown) {
       this.clueShown = true;
       this.cluePopup.show(buildSessionInstructions(this.decade), () => {
@@ -189,39 +171,6 @@ export class GameScene extends Phaser.Scene {
     } else {
       this.spawnAnswers(question);
     }
-  }
-
-  /** Shows the 3 static bonus blocks (peak chart position) above the Right!/Ooh, sorry! signs. */
-  private spawnBonusBlocks(bonusAnswers: NonNullable<ReturnType<typeof generateQuestion>["bonusAnswers"]>): void {
-    const answers = Phaser.Utils.Array.Shuffle([...bonusAnswers]);
-    const lanes = Phaser.Utils.Array.Shuffle([...ANSWER_X_POSITIONS]);
-
-    this.bonusLabel.setVisible(true);
-    this.bonusBlocks = answers.map(
-      (a, i) => new BonusBlock(
-        this, lanes[i], BONUS_ROW_Y, a.peakPosition, a.isCorrect,
-        (tapped) => this.handleBonusTap(tapped)
-      )
-    );
-  }
-
-  private clearBonusBlocks(): void {
-    for (const block of this.bonusBlocks) {
-      block.disableInput();
-      block.destroy();
-    }
-    this.bonusBlocks = [];
-    this.bonusLabel.setVisible(false);
-  }
-
-  /** A bonus tap never affects the main round — it just scores (if correct) and clears itself. */
-  private handleBonusTap(block: BonusBlock): void {
-    if (block.isCorrect) {
-      this.score += BONUS_POINTS;
-      this.scoreText.setText(`Score: ${this.score}`);
-      this.rightSign.flash(this);
-    }
-    this.clearBonusBlocks();
   }
 
   /** Releases the 3 answers one at a time (staggered) at shuffled, randomized-within-lane positions. */
@@ -251,7 +200,6 @@ export class GameScene extends Phaser.Scene {
   /** Ends the current round. `wasMiss` is true for a wrong tap OR the correct answer landing unanswered. */
   private resolveRound(wasMiss: boolean): void {
     this.roundActive = false;
-    this.clearBonusBlocks();
 
     for (const timer of this.pendingSpawnTimers) {
       timer.remove();
@@ -285,6 +233,18 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    this.time.delayedCall(700, () => this.startNextRound());
+    this.time.delayedCall(700, () => {
+      if (!wasMiss && this.currentBonusAnswers) {
+        this.bonusPopup.show(this.currentBonusAnswers, (correct) => {
+          if (correct) {
+            this.score += BONUS_POINTS;
+            this.scoreText.setText(`Score: ${this.score}`);
+          }
+          this.startNextRound();
+        });
+      } else {
+        this.startNextRound();
+      }
+    });
   }
 }
