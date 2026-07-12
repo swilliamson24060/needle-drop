@@ -102,7 +102,7 @@ export class GameScene extends Phaser.Scene {
 
     this.artistLabel = this.add
       .text(GAME_WIDTH / 2, CARD_TOP + CARD_PADDING, "", {
-        fontSize: "22px",
+        fontSize: "24px",
         fontFamily: FONT_FAMILY,
         color: toCssHex(TEXT_DARK),
         fontStyle: "700",
@@ -112,7 +112,7 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5, 0);
     this.yearLabel = this.add
       .text(GAME_WIDTH / 2, 0, "", {
-        fontSize: "16px",
+        fontSize: "20px",
         fontFamily: FONT_FAMILY,
         color: toCssHex(TEXT_GRAY),
         align: "center",
