@@ -39,8 +39,8 @@ const CARD_RADIUS = 20;
 const CARD_PADDING = 16;
 
 const SIGN_Y = GAME_HEIGHT - 46;
-const BONUS_ROW_Y = SIGN_Y - 80;
-const BONUS_LABEL_Y = BONUS_ROW_Y - 36;
+const BONUS_ROW_Y = SIGN_Y - 88;
+const BONUS_LABEL_Y = BONUS_ROW_Y - 42;
 
 export class GameScene extends Phaser.Scene {
   private hits: Hit[] = [];

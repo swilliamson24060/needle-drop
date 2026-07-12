@@ -4,8 +4,8 @@ import { drawRoundedRectWithShadow } from "../ui/roundedPanel";
 
 export type BonusTapHandler = (block: BonusBlock) => void;
 
-const WIDTH = 84;
-const HEIGHT = 48;
+const WIDTH = 96;
+const HEIGHT = 58;
 
 /** A static (non-falling) bonus block showing a candidate peak chart position. */
 export class BonusBlock {
@@ -16,14 +16,22 @@ export class BonusBlock {
     this.isCorrect = isCorrect;
 
     const bg = drawRoundedRectWithShadow(scene, WIDTH, HEIGHT, BONUS_AMBER, 14);
-    const label = scene.add.text(0, 0, `#${peakPosition}`, {
-      fontSize: "18px",
+
+    const reachedLabel = scene.add.text(0, -14, "Reached", {
+      fontSize: "12px",
+      fontFamily: FONT_FAMILY,
+      color: "#ffffff",
+      fontStyle: "600",
+    }).setOrigin(0.5);
+
+    const numberLabel = scene.add.text(0, 8, `#${peakPosition}`, {
+      fontSize: "20px",
       fontFamily: FONT_FAMILY,
       color: "#ffffff",
       fontStyle: "800",
     }).setOrigin(0.5);
 
-    this.container = scene.add.container(x, y, [bg, label]);
+    this.container = scene.add.container(x, y, [bg, reachedLabel, numberLabel]);
     this.container.setSize(WIDTH, HEIGHT);
     this.container.setDepth(60);
     this.container.setInteractive({ useHandCursor: true });
