@@ -25,6 +25,10 @@ export const STACK_FLOOR_LINE = 0xd9c7b8;
 /** Distinct gold/amber used only for the bonus peak-position blocks, to set them apart. */
 export const BONUS_AMBER = 0xf0b429;
 
+/** Bonus popup panel backgrounds, shown after the player picks a peak-position answer. */
+export const BONUS_CORRECT_BG = 0xdff5e3;
+export const BONUS_WRONG_BG = 0xfbdede;
+
 export const FONT_FAMILY = "'Baloo 2', sans-serif";
 
 /** Hex number -> CSS hex string, since Phaser Text color needs "#rrggbb" but Graphics needs 0xrrggbb. */
